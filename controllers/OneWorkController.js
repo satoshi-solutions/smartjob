@@ -1,21 +1,20 @@
 const { getAuthToken, createBrazenRegistration } = require("../services/BrazenUtils")
 const { mapJobSeekerToZohoCandidate } = require("../services/DataTransformUtils")
-const { fetchJobApplications } = require("../services/SJBUtils")
-const { getZohoAccessToken, getUsers, getZohoAccessTokenFromRefresh, getCandidates, createCandidateInZoho } = require("../services/ZohoUtils")
+const { fetchJobApplications, fetchJobDetail } = require("../services/SJBUtils")
+const { getZohoAccessTokenFromRefresh, createCandidateInZoho } = require("../services/ZohoUtils")
+const { SJB_JOB_ID } = process.env;
 
 async function OneWork() {
     
     const applications = await fetchJobApplications()
-    // const accessToken = await getZohoAccessToken()
     const accessToken = await getZohoAccessTokenFromRefresh()
-    console.log("Access Token: ", accessToken)
     const brazenToken = await getAuthToken()
-    console.log("Brazen Token: ", brazenToken)
 
     for (const application of applications) {
         console.log("Application: ", application)
         try {
-            const candidateData = mapJobSeekerToZohoCandidate(application)
+            const jobData = await fetchJobDetail(SJB_JOB_ID);
+            const candidateData = mapJobSeekerToZohoCandidate(application, jobData)
             const candidateId = await createCandidateInZoho(accessToken.access_token, candidateData)
             console.log("Candidate ID: ", candidateId)
 

@@ -20,16 +20,16 @@ async function fetchJobApplications(options = {}) {
     }
   });
 
-      const applications = response.data.applications;
+  const applications = response.data.applications;
 
-      for (const application of applications) {
-        const job_seeker = await fetchJobSeekerProfileDetails(application.jobseeker_id);
-        const resume = await fetchResumeById(application.resume_id);
-        application.job_seeker = job_seeker;
-        application.resume = resume;
-      }
+  for (const application of applications) {
+    const job_seeker = await fetchJobSeekerProfileDetails(application.jobseeker_id);
+    const resume = await fetchResumeById(application.resume_id);
+    application.job_seeker = job_seeker;
+    application.resume = resume;
+  }
 
-      return applications;
+  return applications;
 
 }
 
@@ -85,6 +85,80 @@ async function fetchResumeById(resumeId) {
   }
 }
 
+async function fetchJobDetail(listenId) {
+  if (!listenId) {
+    console.error('No jobs provided to fetchJobDetail');
+  }
+
+  const { SJB_API_KEY } = process.env;
+  const url = `https://absolutelyamerican.mysmartjobboard.com/api/jobs/${listenId}`;
+
+  try {
+    console.log(`Fetching jobs metadata with ID: ${listenId}`);
+
+    // Fetch resume metadata
+    const metadataResponse = await axios.get(url, {
+      params: { api_key: SJB_API_KEY },
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return metadataResponse.data
+  } catch (error) {
+    console.error(`Jobs fetch error for ID ${listenId}:`, error.response?.data || error.message);
+  }
+}
+
+async function fetchJobSeekerWithEmail(email) {
+  if (!email) {
+    console.error('No email provided to fetchJobSeekerWithEmail');
+  }
+
+  const { SJB_API_KEY } = process.env;
+  const url = `https://absolutelyamerican.mysmartjobboard.com/api/jobseekers?page=&limit=&email=${email}&order=asc`;
+
+  try {
+    console.log(`Fetching jobs metadata with ID: ${email}`);
+
+    // Fetch resume metadata
+    const metadataResponse = await axios.get(url, {
+      params: {
+        api_key: SJB_API_KEY,
+      },
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return metadataResponse.data;
+  } catch (error) {
+    console.error(`Jobs fetch error for ID ${email}:`, error.response?.data || error.message);
+  }
+}
+
+async function createNewJobSeeker(jobSeeker) {
+
+  if (!jobSeeker) {
+    console.error('No jobSeeker provided to createNewJobSeeker');
+  }
+
+  const { SJB_API_KEY } = process.env;
+  const url = `https://absolutelyamerican.mysmartjobboard.com/api/jobseekers`;
+
+  try {
+    console.log(`Fetching jobs metadata with ID: ${jobSeeker}`);
+
+    // Fetch resume metadata
+    const metadataResponse = await axios.post(url, jobSeeker, {
+      params: {
+        api_key: SJB_API_KEY,
+      },
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return metadataResponse.data;
+  } catch (error) {
+    console.error(`Jobs fetch error for ID ${jobSeeker}:`, error.response?.data || error.message);
+  }
+}
+
 module.exports = {
-  fetchJobApplications
+  fetchJobApplications,
+  fetchJobDetail,
+  fetchJobSeekerWithEmail,
+  createNewJobSeeker,
 };

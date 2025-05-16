@@ -1,6 +1,7 @@
 const express = require("express");
 const cron = require("node-cron");
 const { OneWork } = require("./controllers/OneWorkController");
+const { SecondWork } = require("./controllers/SecondWorkController");
 require("dotenv").config();
 
 // const app = express();
@@ -43,4 +44,6 @@ require("dotenv").config();
 //   }
 // });
 
-OneWork();
+// OneWork();
+
+SecondWork();

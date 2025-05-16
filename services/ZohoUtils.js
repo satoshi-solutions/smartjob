@@ -118,6 +118,7 @@ async function uploadCandidateResume(accessToken, candidateId, resume) {
   return response.data
 }
 
+
 async function getCandidates(accessToken) {
   const url = "https://recruit.zoho.com/recruit/v2/Candidates";
   const response = await axios.get(url, {
@@ -129,10 +130,24 @@ async function getCandidates(accessToken) {
 
   return response.data
 }
+
+async function getSpecificCandidates(accessToken, candidateId) {
+  const url = `https://recruit.zoho.com/recruit/v2/Candidates/${candidateId}`;
+  const response = await axios.get(url, {
+    headers: {
+      'Authorization': `Zoho-oauthtoken ${accessToken}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  return response.data
+}
+
 module.exports = {
   getZohoAccessToken,
   getUsers,
   createCandidateInZoho,
   getZohoAccessTokenFromRefresh,
-  getCandidates
+  getCandidates,
+  getSpecificCandidates
 };
