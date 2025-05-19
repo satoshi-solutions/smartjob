@@ -1,51 +1,56 @@
 const { getAuthToken, createBrazenRegistration, getBrazenRegistration, getBrazenRegistrationDetail } = require("../services/BrazenUtils")
-const { mapJobSeekerToZohoCandidate } = require("../services/DataTransformUtils")
+const { getAuthToken, createBrazenRegistration, getBrazenRegistration, getBrazenRegistrationDetail } = require("../services/BrazenUtils")
+const { mapJobSeekerToZohoCandidate, mapBrazenJobSeekerToZohoCandidate } = require("../services/DataTransformUtils")
 const { fetchJobApplications, fetchJobDetail, fetchJobSeekerWithEmail, createNewJobSeeker } = require("../services/SJBUtils")
 const { getZohoAccessTokenFromRefresh, createCandidateInZoho, getCandidates, getSpecificCandidates } = require("../services/ZohoUtils")
-const { SJB_JOB_ID } = process.env;
 
 async function SecondWork() {
 
-    // const brazenToken = await getAuthToken();
-    // const brazenEvents = await getBrazenRegistration(brazenToken);
-
+    const brazenToken = await getAuthToken();
+    const brazenEvents = await getBrazenRegistration(brazenToken);
 
     const accessToken = await getZohoAccessTokenFromRefresh();
-    console.log('accessToken', accessToken.access_token)
-    const users = await getCandidates(accessToken.access_token);
+    const applications = await fetchJobApplications();
 
-    // for (const brazenEvent of brazenEvents) {
-    //     try {
-    //--------------------------Send data to Smart Job Board--------------------------------
-    // const isAlreadySeeker = await fetchJobSeekerWithEmail(brazenEvent?.data?.email);
-    // if (isAlreadySeeker.jobseekers.length != 0) {
-    //     //Upload only Resume
-    // }
-    // else {
-    //     console.log('brazenEvent', brazenEvent)
-    //     const detailedBrazen = await getBrazenRegistrationDetail(brazenToken, brazenEvent.data.id);
-    //     const formattedData = formatSeekerData(detailedBrazen);
-    //     const result = await createNewJobSeeker(formattedData);
-    //     console.log('---Result---', result)
-    // }
+    const zohoEmails = new Set(
+        applications
+            .map(user => user.jobseeker_email)
+    );
+    // const users = await getCandidates(accessToken.access_token);
+    // const zohoEmails = new Set(
+    //     users.data
+    //         .map(user => user.Email)
+    // );
+    console.log('zohoEmails', zohoEmails);
+    for (const brazenEvent of brazenEvents) {
+        try {
+            //--------------------------Send data to Smart Job Board--------------------------------
 
-    //--------------------------Send data to Zoho--------------------------------
-    // for(const user of users.data) {
-    //     if (user.email == brazenEvent?.data?.email) {
-    //         console.log("User already exists in Zoho: ", user.email)
-    //         continue;
-    //     }
-    // }
-    // const zohoCandidate = await mapJobSeekerToZohoCandidate(formattedData);
-    // const zohoCandidateId = await createCandidateInZoho(accessToken.access_token, zohoCandidate);
-    // }
-    // catch (e) {
-    //     console.log("Error Occurred: ")
-    // }
+            const isAlreadySeeker = await fetchJobSeekerWithEmail(brazenEvent?.data?.email);
+            if (isAlreadySeeker.jobseekers.length != 0) {
+                //Upload only Resume
+            }
+            else {
+                console.log('brazenEvent', brazenEvent)
+                const detailedBrazen = await getBrazenRegistrationDetail(brazenToken, brazenEvent.data.id);
+                const formattedData = formatSeekerData(detailedBrazen);
+                const result = await createNewJobSeeker(formattedData);
+                console.log('---Result---', result)
+            }
 
-    // }
+            //--------------------------Send data to Zoho--------------------------------
 
-
+            const brazenEmail = brazenEvent?.data?.email?.toLowerCase();
+            if (!brazenEmail || zohoEmails.has(brazenEmail)) continue;
+            const detailedBrazen = await getBrazenRegistrationDetail(brazenToken, brazenEvent.data.id);
+            const zohoCandidate = await mapBrazenJobSeekerToZohoCandidate(detailedBrazen);
+            const zohoCandidateId = await createCandidateInZoho(accessToken.access_token, zohoCandidate);
+            console.log('zohoCandidateId', zohoCandidateId);
+        }
+        catch (e) {
+            console.log("Error Occurred: ")
+        }
+    }
 }
 
 function formatSeekerData(jobseeker) {
