@@ -69,6 +69,19 @@ function mapJobSeekerToZohoCandidate(application, jobData) {
     return zohoCandidate;
 }
 
+function normalizeDate(value) {
+    if (!value) return null;
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0]; // "YYYY-MM-DD"
+}
+
+function formatToZohoDate(dateString) {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    if (isNaN(date)) return null;
+    return date.toISOString().split('T')[0]; // "YYYY-MM-DD"
+}
+
 function mapBrazenJobSeekerToZohoCandidate(jobData) {
 
     console.log('jobData-------------------', jobData)
@@ -103,6 +116,7 @@ function mapBrazenJobSeekerToZohoCandidate(jobData) {
 
     const firstName = jobData.first_name;
     const lastName = jobData.last_name;
+    console.log('extractField(fields, "End of Active Duty Service Date")', extractField(fields, "End of Active Duty Service Date"))
 
     // STEP 3: Final zohoCandidate object
     const zohoCandidate = {
@@ -126,8 +140,8 @@ function mapBrazenJobSeekerToZohoCandidate(jobData) {
         "Willing_to_relocate": extractField(fields, "Are you willing to relocate?"),
         "Geographic_Preference": extractField(fields, "Geographic Preference"),
         "U_S_Citizen": extractField(fields, "U.S Citizen"),
-        "End_of_Active_Duty_Service_Date": extractField(fields, "End of Active Duty Service Date"),
-        "Military_Rank_at_discharge": extractField(fields, "Military Rank (at discharge)"),
+        "End_of_Active_Duty_Service_Date": normalizeDate(extractField(fields, "End of Active Duty Service Date")),
+        "Military_Rank_at_discharge": [extractField(fields, "Military Rank (at discharge)")].filter(Boolean),
         "LinkedIn_Handle": extractField(fields, "LinkedIn Profile link"),
 
         "Country": jobSeeker.country || null,
@@ -135,7 +149,7 @@ function mapBrazenJobSeekerToZohoCandidate(jobData) {
         "State": extractField(fields, "State or Province"),
         "Zip_Code": jobSeeker.zip_code,
 
-        "Availability_Date": extractField(fields, "Availability Date"),
+        "Availability_Date": formatToZohoDate(extractField(fields, "Availability Date")),
         "Candidate_Status": "New",
         "Candidate_Stage": "New",
         "Fresh_Candidate": true,

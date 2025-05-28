@@ -61,8 +61,6 @@ async function getUsers(accessToken) {
 
 async function createCandidateInZoho(accessToken, jobSeeker) {
   try {
-    console.log(`Creating new candidate in Zoho: ${jobSeeker.id || jobSeeker.email}`);
-
     // Map job seeker data to Zoho candidate fields
     // Create candidate in Zoho
     const response = await axios.post(`${ZOHO_RECRUIT_API_BASE}/Candidates`, {

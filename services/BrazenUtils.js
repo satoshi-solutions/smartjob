@@ -67,7 +67,6 @@ async function createBrazenRegistration(application, authToken) {
         const jobData = await fetchJobDetail(SJB_JOB_ID);
         const url = `${BRAZEN_API_BASE}/events/${BRAZEN_EVENT_ID}/registrations`;
         const formData = buildBrazenFormData(application, jobData);
-        console.log('formData---------------', formData)
         const params = {
             "email": application.job_seeker.email,
             "event_code": BRAZEN_EVENT_ID,

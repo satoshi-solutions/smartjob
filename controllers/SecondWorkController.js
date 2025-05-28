@@ -1,5 +1,4 @@
 const { getAuthToken, createBrazenRegistration, getBrazenRegistration, getBrazenRegistrationDetail } = require("../services/BrazenUtils")
-const { getAuthToken, createBrazenRegistration, getBrazenRegistration, getBrazenRegistrationDetail } = require("../services/BrazenUtils")
 const { mapJobSeekerToZohoCandidate, mapBrazenJobSeekerToZohoCandidate } = require("../services/DataTransformUtils")
 const { fetchJobApplications, fetchJobDetail, fetchJobSeekerWithEmail, createNewJobSeeker } = require("../services/SJBUtils")
 const { getZohoAccessTokenFromRefresh, createCandidateInZoho, getCandidates, getSpecificCandidates } = require("../services/ZohoUtils")
